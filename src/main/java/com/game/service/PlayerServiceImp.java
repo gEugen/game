@@ -64,28 +64,35 @@ public class PlayerServiceImp implements PlayerService {
             @Override
             public Predicate toPredicate(Root<Player> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
                 List<Predicate> predicates = new ArrayList<>();
+
                 if (name != null) {
                     predicates.add(criteriaBuilder.like(root.get("name"), "%" + name + "%"));
                 }
+
                 if (title != null) {
                     predicates.add(criteriaBuilder.like(root.get("title"), "%" + title + "%"));
                 }
+
                 if (race != null) {
                     predicates.add(criteriaBuilder.equal(root.get("race"), race));
                 }
+
                 if (profession != null) {
                     predicates.add(criteriaBuilder.equal(root.get("profession"), profession));
                 }
+
                 if (birthdayAfter != null || birthdayBefore != null) {
-                    Date after = TimeTools.getDateFromString("1999-12-31");
-                    Date before = TimeTools.getDateFromString("3001-01-01");
+                    Date after = TimeTools.getDateFromString(Player.BIRTHDAY_MIN_DATE_AFTER);
+                    Date before = TimeTools.getDateFromString(Player.BIRTHDAY_MAX_DATE_BEFORE);
                     if (birthdayAfter != null) after = TimeTools.getDateFromMs(birthdayAfter);
                     if (birthdayBefore != null) before = TimeTools.getDateFromMs(birthdayBefore);
                     predicates.add(criteriaBuilder.between(root.get("birthday"), after, before));
                 }
+
                 if (banned != null) {
                     predicates.add(criteriaBuilder.equal(root.get("banned"), banned));
                 }
+
                 if (experienceMin != null || experienceMax != null) {
                     int expMin = 0;
                     int expMax = Integer.MAX_VALUE;
@@ -93,6 +100,7 @@ public class PlayerServiceImp implements PlayerService {
                     if (experienceMax != null) expMax = experienceMax;
                     predicates.add(criteriaBuilder.between(root.get("experience"), expMin, expMax));
                 }
+
                 if (levelMin != null || levelMax != null) {
                     int lvlMin = 0;
                     int lvlMax = Integer.MAX_VALUE;
@@ -105,14 +113,17 @@ public class PlayerServiceImp implements PlayerService {
             }
 
         }, pageable);
-        page.getTotalElements();
-        page.getTotalPages();
+
+        long totalElementsNumber = page.getTotalElements();
+        long totalPagesNumber = page.getTotalPages();
+
         return page.getContent();
     }
 
     private Integer getYearOfBirthday(Player player) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(player.getBirthday());
+
         return calendar.get(Calendar.YEAR);
     }
 }

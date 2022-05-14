@@ -52,24 +52,26 @@ public class PlayerController {
                                    @RequestParam(name = "pageSize", required = false) Integer pageSize,
                                    @RequestParam(name = "order", required = false) PlayerOrder playerOrder) {
 
-        List<Player> list = playerService.getPlayersByCriteria(name, title, race, profession, birthdayAfter, birthdayBefore,
-                banned, experienceMin, experienceMax, levelMin, levelMax,
+        List<Player> resultPlayerList = playerService.getPlayersByCriteria(name, title, race, profession, birthdayAfter,
+                birthdayBefore, banned, experienceMin, experienceMax, levelMin, levelMax,
                 getPageableParameter(pageNumber, pageSize, playerOrder, true));
 
-        return playerService.getPlayersByCriteria(name, title, race, profession, birthdayAfter, birthdayBefore,
-                banned, experienceMin, experienceMax, levelMin, levelMax,
-                getPageableParameter(pageNumber, pageSize, playerOrder, true));
+        return resultPlayerList;
     }
 
     private Pageable getPageableParameter(Integer pageNumber, Integer pageSize, PlayerOrder playerOrder, boolean pagingOn) {
         if (pagingOn) {
             if (pageNumber == null) pageNumber = 0;
             if (pageSize == null) pageSize = 3;
+
         } else {
             pageNumber = 0;
             pageSize = playerService.getPlayers().size();
         }
-        if (playerOrder == null) playerOrder = PlayerOrder.ID;
+
+        if (playerOrder == null) {
+            playerOrder = PlayerOrder.ID;
+        }
 
         return PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString("ASC"),
                 playerOrder.getFieldName()));
@@ -92,9 +94,11 @@ public class PlayerController {
                                    @RequestParam(name = "pageSize", required = false) Integer pageSize,
                                    @RequestParam(name = "order", required = false) PlayerOrder playerOrder) {
 
-        return playerService.getPlayersByCriteria(name, title, race, profession, birthdayAfter, birthdayBefore,
-                banned, experienceMin, experienceMax, levelMin, levelMax,
-                getPageableParameter(null, null, playerOrder, false)).size();
+        List<Player> resultPlayerList = playerService.getPlayersByCriteria(name, title, race, profession, birthdayAfter,
+                birthdayBefore, banned, experienceMin, experienceMax, levelMin, levelMax,
+                getPageableParameter(null, null, playerOrder, false));
+
+        return resultPlayerList.size();
     }
 
 
@@ -127,74 +131,91 @@ public class PlayerController {
 
                 if (player.getName() != null) {
                     notValidParametersNumber ++;
+
                     if (isPlayerNameValid(player.getName())) {
                         playerFromRepository.setName(player.getName());
                         notValidParametersNumber--;
+
                     } else {
                         updatedParametersNumber--;
                     }
+
                 } else {
                     updatedParametersNumber--;
                 }
 
                 if (player.getTitle() != null) {
                     notValidParametersNumber++;
+
                     if (checkIsPlayerTitleValid(player.getTitle())) {
                         playerFromRepository.setTitle(player.getTitle());
                         notValidParametersNumber--;
+
                     } else {
                         updatedParametersNumber--;
                     }
+
                 } else {
                     updatedParametersNumber--;
                 }
 
                 if (player.getRace() != null) {
                     playerFromRepository.setRace(player.getRace());
+
                 } else {
                     updatedParametersNumber--;
                 }
 
                 if (player.getProfession() != null) {
                     playerFromRepository.setProfession(player.getProfession());
+
                 } else {
                     updatedParametersNumber--;
                 }
 
                 if (player.getExperience() != null) {
                     notValidParametersNumber++;
+
                     if (isPlayerExperienceValid(player.getExperience())) {
                         playerFromRepository.setExperience(player.getExperience());
                         setRelatedParameters(playerFromRepository);
                         notValidParametersNumber--;
+
                     } else {
                         updatedParametersNumber--;
                     }
+
                 } else {
                     updatedParametersNumber--;
                 }
 
                 if (player.getBirthday() != null) {
                     notValidParametersNumber++;
+
                     if (isPlayerBirthdayValid(player.getBirthday())) {
                         playerFromRepository.setBirthday(player.getBirthday());
                         notValidParametersNumber--;
+
                     } else {
                         updatedParametersNumber--;
                     }
+
                 } else {
                     updatedParametersNumber--;
                 }
 
                 if (player.getBanned() != null) {
                     playerFromRepository.setBanned(player.getBanned());
+
                 } else {
                     updatedParametersNumber--;
                 }
 
                 if (updatedParametersNumber != 0) {
+
                     if (notValidParametersNumber == 0) {
                         return playerService.savePlayer(playerFromRepository);
+
                     } else {
                         throw new NotValidParameterException();
                     }
@@ -206,6 +227,7 @@ public class PlayerController {
             } else {
                 throw new ResourceNotFoundException();
             }
+
         } else {
             throw new NotValidParameterException();
         }
@@ -232,11 +254,14 @@ public class PlayerController {
     @ResponseBody
     public void deletePlayer(@PathVariable Long id) {
         if (id > 0) {
+
             if (isPlayerExistInRepository(id)) {
                 playerService.deletePlayer(id);
+
             } else {
                 throw new ResourceNotFoundException();
             }
+
         } else {
             throw new NotValidParameterException();
         }
@@ -246,11 +271,14 @@ public class PlayerController {
     @ResponseBody
     public Player getPlayer(@PathVariable Long id) {
         if (id > 0) {
+
             if (isPlayerExistInRepository(id)) {
                 return playerService.getPlayer(id);
+
             } else {
                 throw new ResourceNotFoundException();
             }
+
         } else {
             throw new NotValidParameterException();
         }
@@ -259,6 +287,7 @@ public class PlayerController {
     private boolean isPlayerExistInRepository(Long id) {
         if (playerService.getPlayer(id) != null) {
             return true;
+
         } else {
             return false;
         }
