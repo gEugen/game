@@ -18,7 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.DataBinder;
 import org.springframework.web.bind.annotation.*;
-import tools.TimeTools;
+import com.game.tools.TimeTools;
 
 import java.util.Date;
 import java.util.List;

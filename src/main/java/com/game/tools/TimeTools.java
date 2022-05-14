@@ -1,4 +1,4 @@
-package tools;
+package com.game.tools;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
